@@ -1,0 +1,48 @@
+using UnityEngine;
+
+[RequireComponent(typeof(CharacterController))]
+public class PlayerMovement : MonoBehaviour
+{
+    public float moveSpeed = 5f;
+    public float gravity = -9.81f;
+
+    private CharacterController controller;
+    private Vector3 moveInput;
+    private Vector3 velocity;
+
+    void Start()
+    {
+        controller = GetComponent<CharacterController>();
+    }
+
+    void Update()
+    {
+        // Чтение ввода
+        float x = Input.GetAxisRaw("Horizontal");
+        float z = Input.GetAxisRaw("Vertical");
+
+        moveInput = new Vector3(x, 0f, z).normalized;
+
+        // Перемещение
+        Vector3 move = transform.TransformDirection(moveInput) * moveSpeed;
+        controller.Move(move * Time.deltaTime);
+
+        // Гравитация
+        if (!controller.isGrounded)
+        {
+            velocity.y += gravity * Time.deltaTime;
+        }
+        else if (velocity.y < 0)
+        {
+            velocity.y = -2f; // небольшое удержание на земле
+        }
+
+        controller.Move(velocity * Time.deltaTime);
+
+        // Поворот в сторону движения
+        if (moveInput.magnitude > 0.1f)
+        {
+            transform.forward = moveInput;
+        }
+    }
+}
